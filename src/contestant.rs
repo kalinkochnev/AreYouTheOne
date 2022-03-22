@@ -49,10 +49,25 @@ impl ContestantPair {
         return &self.B;
     }
 }
+impl fmt::Display for ContestantPair {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}, {}", self.getA(), self.getB())
+    }
+}
+
 impl PartialEq for ContestantPair {
     fn eq(&self, other: &Self) -> bool {
         // Check that the pair matches regardless of contestant A or B's order
         return (self.A.id == other.A.id && self.B.id == other.B.id) || (self.A.id == other.B.id && self.B.id == other.A.id); 
+    }
+}
+pub struct ContestantPairs<'a>(pub  &'a Vec<ContestantPair>);
+impl<'a> fmt::Display for ContestantPairs<'a> {
+    // https://medium.com/apolitical-engineering/how-do-you-impl-display-for-vec-b8dbb21d814f
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.0.iter().fold(Ok(()), |result, pair| {
+            result.and_then(|_| {writeln!(f, "{}", pair)})
+        })
     }
 }
 

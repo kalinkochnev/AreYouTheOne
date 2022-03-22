@@ -18,9 +18,6 @@ impl GameMaster {
             pairs.push(ContestantPair::new(Player::new(i), Player::new(i+1)));
         }
 
-        let mut rng = thread_rng();
-        pairs.shuffle(&mut rng);
-
         return GameMaster {iterations: 0, pairs};
     }
     pub fn contestants(&self) -> Vec<&Player> {
@@ -30,6 +27,8 @@ impl GameMaster {
             players.push(&pair.getA());
             players.push(&pair.getB());
         }
+        let mut rng = thread_rng();
+        players.shuffle(&mut rng);
         return players;
     }
 
@@ -48,7 +47,7 @@ impl GameMaster {
 #[cfg(test)]
 mod tests {
     use crate::gamemaster::GameMaster;
-    use crate::contestant::{Player, ContestantPair};
+    use crate::contestant::{Player, ContestantPair, ContestantPairs};
 
 
     #[test]
@@ -60,12 +59,23 @@ mod tests {
 
     #[test]
     fn test_get_contestants() {
-        let game = GameMaster::initialize_game(12);
-
+        let num_players = 12;
+        let game = GameMaster::initialize_game(num_players);
+        
         // Check that the randomized contestant list is not the same as the one derived from matched pair order
         let randomized: Vec<&Player> = game.contestants();
+        let mut num_equal = 0;
         for i in 0..randomized.len() {
-            assert_ne!(randomized[i].id as usize, i)
+            if randomized[i].id as usize == i {
+                num_equal += 1;
+            }
+        }
+        assert_ne!(num_equal, randomized.len());
+
+        // Check that the matched pairs are still in order after shuffles 
+        for i in 0..game.pairs.len() {
+            assert_eq!(game.pairs[i].getA().id as usize, 2*i);
+            assert_eq!(game.pairs[i].getB().id as usize, 2*i+1);
         }
     }
     #[test]
