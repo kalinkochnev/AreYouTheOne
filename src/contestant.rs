@@ -1,18 +1,40 @@
 use std::fmt;
+use std::fs::{File};
+use std::io;
+use std::io::{BufRead};
+use rand::seq::IteratorRandom;
 
 #[derive(Debug)]
 pub struct Player {
-    pub id: i32
+    pub id: i32,
+    pub name: String
 }
 
 impl Player {
+    const NAME_FILE_PATH: &'static str = "./names.txt";
+
     pub fn new(id: i32) -> Player {
-        return Player { id: id };
+        return Player { id: id, name: Player::pick_name() };
+    }
+
+    fn pick_name() -> String {
+        let file = File::open(Player::NAME_FILE_PATH).unwrap_or_else(|e| panic!("unable to open ./names.txt"));
+        
+        let buffer = io::BufReader::new(file);
+        let lines = buffer.lines().map(|line| line.expect("Could not read line"));
+
+        lines.choose(&mut rand::thread_rng()).expect("File had no lines")
     }
 }
+impl std::clone::Clone for Player {
+    fn clone(&self) -> Self {
+        return Self {id: self.id, name: self.name.clone() }
+    }
+}
+
 impl fmt::Display for Player {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        return write!(f, "Player({})", self.id);
+        write!(f, "Contestant {} ({})", self.id, self.name)
     }
 }
 impl PartialEq for Player {
@@ -33,32 +55,32 @@ impl<'a> fmt::Display for Players<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ContestantPair {
-    A: Player,
-    B: Player,
+    a: Player,
+    b: Player,
 }
 impl ContestantPair {
-    pub fn new(A: Player, B: Player) -> ContestantPair {
-        ContestantPair {A, B}
+    pub fn new(a: Player, b: Player) -> ContestantPair {
+        ContestantPair {a, b}
     }
-    pub fn getA(&self) -> &Player {
-        return &self.A;
+    pub fn get_a(&self) -> &Player {
+        return &self.a;
     }
-    pub fn getB(&self) -> &Player {
-        return &self.B;
+    pub fn get_b(&self) -> &Player {
+        return &self.b;
     }
 }
 impl fmt::Display for ContestantPair {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}, {}", self.getA(), self.getB())
+        write!(f, "{}, {}", self.get_a(), self.get_b())
     }
 }
 
 impl PartialEq for ContestantPair {
     fn eq(&self, other: &Self) -> bool {
-        // Check that the pair matches regardless of contestant A or B's order
-        return (self.A.id == other.A.id && self.B.id == other.B.id) || (self.A.id == other.B.id && self.B.id == other.A.id); 
+        // Check that the pair .matches regardless of contestant a or b's order
+        return (self.a.id == other.a.id && self.b.id == other.b.id) || (self.a.id == other.b.id && self.b.id == other.a.id); 
     }
 }
 pub struct ContestantPairs<'a>(pub  &'a Vec<ContestantPair>);
@@ -78,6 +100,15 @@ mod tests {
     fn test_player_equal() {
         assert_eq!(Player::new(1), Player::new(1));
         assert_ne!(Player::new(1), Player::new(100));
+    }
+
+    #[test]
+    fn test_clone() {
+        let player = Player {id: 1, name: String::from("Janina")};
+        let cloned = player.clone();
+
+        assert_eq!(cloned.name, player.name);
+        assert_eq!(cloned.id, player.id);
     }
     
     #[test]
