@@ -4,7 +4,7 @@ use std::io;
 use std::io::{BufRead};
 use rand::seq::IteratorRandom;
 
-#[derive(Debug)]
+#[derive(Debug, std::cmp::Eq, std::hash::Hash)]
 pub struct Player {
     pub id: i32,
     pub name: String
@@ -55,7 +55,7 @@ impl<'a> fmt::Display for Players<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, std::cmp::Eq, std::hash::Hash)]
 pub struct ContestantPair {
     a: Player,
     b: Player,
@@ -69,6 +69,11 @@ impl ContestantPair {
     }
     pub fn get_b(&self) -> &Player {
         return &self.b;
+    }
+
+    pub fn has_player(&self, player: &Player) -> bool {
+        // TODO test this
+        return &self.a == player || &self.b == player;
     }
 }
 impl fmt::Display for ContestantPair {

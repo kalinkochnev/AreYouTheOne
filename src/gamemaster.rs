@@ -1,3 +1,4 @@
+use crate::gamestrategy::Feedback;
 use crate::contestant::{ContestantPair, Player};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
@@ -47,20 +48,37 @@ impl GameMaster {
         return false;
     }
 
-    pub fn make_guess(&mut self, guess: &ContestantPair) -> bool {
+    pub fn truth_booth(&mut self, guess: Option<ContestantPair>) -> Feedback {
         println!("ROUND {}-------", self.iterations);
-        println!("Attempted match {}", guess);
-        self.iterations += 1;
+        if let Some(pair) = guess {
+            println!("Attempted match {}", pair);
 
-        if self.is_match(&guess) {
-            println!("Guessed correctly!\n");
-            self.num_matched += 1;
-            return true;
+            self.iterations += 1;
+            if self.is_match(&pair) {
+                println!("Guessed correctly!\n");
+                self.num_matched += 1;
+                return Feedback::Correct(pair.clone());
+            } else {
+                println!("Wrong guess!\n");
+                return Feedback::Wrong;
+            }
+            
         } else {
-            println!("Wrong guess!\n");
-            return false;
+            println!("Abstained from the truth booth!");
+            return Feedback::Wrong;
         }
 
+    }
+
+    pub fn ceremony(&self, pairs: Vec<ContestantPair>) -> usize {
+        let mut num_matches = 0;
+        for p in pairs.iter() {
+            if self.is_match(p) {
+                num_matches += 1;
+            }
+        }
+        println!("{} perfect matches are contained!", num_matches);
+        return num_matches;
     }
 
     pub fn output_stats(&self) {
@@ -81,7 +99,8 @@ impl GameMaster {
 
 #[cfg(test)]
 mod tests {
-    use crate::contestant::{ContestantPair, Player};
+    use crate::gamestrategy::Feedback;
+        use crate::contestant::{ContestantPair, Player};
     use crate::gamemaster::GameMaster;
 
     #[test]
@@ -143,7 +162,7 @@ mod tests {
         let mut game = GameMaster::initialize_game(12, 50);
         assert_eq!(game.in_progress(), true);
         for pair in game.matches.clone().iter() {
-            assert_eq!(game.make_guess(&pair), true);
+            assert_eq!(game.truth_booth(Some(pair.clone())), Feedback::Correct(pair.clone()));
         }
         assert_eq!(game.in_progress(), false);
     }
@@ -153,9 +172,9 @@ mod tests {
         let mut game = GameMaster::initialize_game(12, 5);
         assert_eq!(game.in_progress(), true);
 
-        let cloned = game.matches.clone();
+        let cloned = game.matches.to_owned();
         for i in 0..6 {
-            assert_eq!(game.make_guess(cloned.get(0).unwrap()), true);
+            assert_eq!(game.truth_booth(Some(cloned.get(0).unwrap().clone())), Feedback::Correct(cloned.get(0).unwrap().clone()));
         }
         
         assert_eq!(game.in_progress(), false);
