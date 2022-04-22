@@ -100,7 +100,7 @@ impl GameMaster {
 #[cfg(test)]
 mod tests {
     use crate::gamestrategy::Feedback;
-        use crate::contestant::{ContestantPair, Player};
+    use crate::contestant::{ContestantPair, Player};
     use crate::gamemaster::GameMaster;
 
     #[test]
@@ -179,4 +179,71 @@ mod tests {
         
         assert_eq!(game.in_progress(), false);
     }
+
+
+    fn pairs_to_contestants(pairs: &Vec<ContestantPair>) -> Vec<Player> {
+        let mut players = Vec::new();
+        for p in pairs.iter() {
+            players.push(p.get_a().clone());
+            players.push(p.get_b().clone());
+        }
+        return players;
+    }
+
+    fn get_unperfect_matches(perfect_matches: &Vec<ContestantPair>, num_pairs: usize) -> Vec<ContestantPair> {
+        if num_pairs > perfect_matches.len() {
+            panic!("{} matches can't be made from {} contestants", num_pairs, 2 * perfect_matches.len());
+        }
+        
+        let mut unperfect_matches = Vec::new();
+        let perfect_players = pairs_to_contestants(perfect_matches);
+
+        // Work forwards and backwards and pair those two contestants together
+        for i in 0..num_pairs {
+            let p1 = perfect_players.get(i).unwrap();
+            let p2 = perfect_players.get(perfect_players.len() - 1 - i).unwrap();
+
+            unperfect_matches.push(ContestantPair::new(p1.clone(), p2.clone()));
+        }
+        return unperfect_matches
+    }
+
+
+    #[test]
+    fn test_truth_booth() {
+        let mut game = GameMaster::initialize_game(12, 5);
+        assert_eq!(game.iterations, 0);
+
+        let wrong_match = get_unperfect_matches(&game.matches, 1).pop().unwrap();
+
+        assert_eq!(game.truth_booth(Some(wrong_match)), Feedback::Wrong);
+        assert_eq!(game.iterations, 1);
+        assert_eq!(game.num_matched, 0);
+
+        let right_match = game.matches.get(0).unwrap().clone();
+        assert_eq!(game.truth_booth(Some(right_match.clone())), Feedback::Correct(right_match));
+        assert_eq!(game.iterations, 2);
+        assert_eq!(game.num_matched, 1);
+    }
+
+    #[test]
+    fn test_ceremony() {
+        let game = GameMaster::initialize_game(12, 5);
+        let cloned_matches = game.matches.to_owned();
+
+        // No correct guesses
+        let random_pairs: Vec<ContestantPair> = get_unperfect_matches(&cloned_matches, 6);
+        assert_eq!(game.ceremony(random_pairs), 0); 
+
+        // Generate 4 random pairs, keep 2 of the correct ones
+        let mut random_pairs: Vec<ContestantPair> = vec![cloned_matches.get(0).unwrap().clone(), cloned_matches.get(1).unwrap().clone()];
+
+        let new_pairs = get_unperfect_matches(&cloned_matches[2..].to_vec(), 4);
+        for p in new_pairs.to_owned() {
+            random_pairs.push(p);
+        }
+        
+        assert_eq!(game.ceremony(random_pairs), 2); // should have 2 correct
+    }
+
 }
