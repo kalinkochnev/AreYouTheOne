@@ -43,8 +43,6 @@ impl PartialEq for Player {
     }
 }
 
-
-
 pub struct Players<'a>(pub  &'a Vec<&'a Player>);
 impl<'a> fmt::Display for Players<'a> {
     // https://medium.com/apolitical-engineering/how-do-you-impl-display-for-vec-b8dbb21d814f
