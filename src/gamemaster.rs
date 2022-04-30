@@ -48,23 +48,17 @@ impl GameMaster {
         return false;
     }
 
-    pub fn truth_booth(&mut self, guess: Option<ContestantPair>) -> Feedback {
+    pub fn truth_booth(&mut self, guess: ContestantPair) -> Feedback {
         println!("ROUND {}-------", self.iterations);
-        if let Some(pair) = guess {
-            println!("Attempted match {}", pair);
+        println!("Attempted match {}", guess);
 
-            self.iterations += 1;
-            if self.is_match(&pair) {
-                println!("Guessed correctly!\n");
-                self.num_matched += 1;
-                return Feedback::Correct(pair.clone());
-            } else {
-                println!("Wrong guess!\n");
-                return Feedback::Wrong;
-            }
-            
+        self.iterations += 1;
+        if self.is_match(&guess) {
+            println!("Guessed correctly!\n");
+            self.num_matched += 1;
+            return Feedback::Correct(guess);
         } else {
-            println!("Abstained from the truth booth!");
+            println!("Wrong guess!\n");
             return Feedback::Wrong;
         }
 
@@ -165,7 +159,7 @@ use crate::gamestrategy::Feedback;
         let mut game = GameMaster::initialize_game(12, 50);
         assert_eq!(game.in_progress(), true);
         for pair in game.matches.clone().iter() {
-            assert_eq!(game.truth_booth(Some(pair.clone())), Feedback::Correct(pair.clone()));
+            assert_eq!(game.truth_booth(pair.clone()), Feedback::Correct(pair.clone()));
         }
         assert_eq!(game.in_progress(), false);
     }
@@ -177,7 +171,7 @@ use crate::gamestrategy::Feedback;
 
         let cloned = game.matches.to_owned();
         for i in 0..6 {
-            assert_eq!(game.truth_booth(Some(cloned.get(0).unwrap().clone())), Feedback::Correct(cloned.get(0).unwrap().clone()));
+            assert_eq!(game.truth_booth(cloned.get(0).unwrap().clone()), Feedback::Correct(cloned.get(0).unwrap().clone()));
         }
         
         assert_eq!(game.in_progress(), false);
@@ -190,12 +184,12 @@ use crate::gamestrategy::Feedback;
 
         let wrong_match = get_matches(&game.matches, 0, 1).pop().unwrap();
 
-        assert_eq!(game.truth_booth(Some(wrong_match)), Feedback::Wrong);
+        assert_eq!(game.truth_booth(wrong_match), Feedback::Wrong);
         assert_eq!(game.iterations, 1);
         assert_eq!(game.num_matched, 0);
 
         let right_match = game.matches.get(0).unwrap().clone();
-        assert_eq!(game.truth_booth(Some(right_match.clone())), Feedback::Correct(right_match));
+        assert_eq!(game.truth_booth(right_match.clone()), Feedback::Correct(right_match));
         assert_eq!(game.iterations, 2);
         assert_eq!(game.num_matched, 1);
     }

@@ -53,6 +53,9 @@ impl BruteForce {
     }
 
     fn already_guessed(&self, p1: &Player, p2: &Player) -> bool {
+        if !self.contestants.contains(p1) || !self.contestants.contains(p2) {
+            panic!("Player checked is not a part of the game!");
+        }
         // If it does not contain either player in the set of keys, it has been found already!
         if !(self.possibilities.contains_key(p1) && self.possibilities.contains_key(p2)) {
             return true;
@@ -78,6 +81,9 @@ impl BruteForce {
             } 
             self.possibilities.get_mut(p1).expect("Attempted to remove p2 from p1 guesses").remove(p2);
             self.possibilities.get_mut(p2).expect("Attempted to remove p1 from p2 guesses").remove(p1);
+
+            // eliminate guesses from rounds
+            self.round_manager.eliminate_guesses(vec![pair.clone()]);
         }
     }
 
@@ -146,7 +152,8 @@ impl BruteForce {
 
         // keep going until you have found a full set of current_pairs
         while current_pairing.len() < self.contestants.len() / 2 {
-            println!("Poss {}", ContestantPairs(&current_pairing));
+            // println!("Poss {}", ContestantPairs(&current_pairing));
+
             // from the top of the stack, add the next stack of possibilities
             let (player_a, player_a_poss) = poss_stack.last_mut().unwrap();
             let player_a_match = player_a_poss.iter().next().cloned();
@@ -189,10 +196,6 @@ impl BruteForce {
         return current_pairing;
     }
 
-    fn handle_correct_match(&self, pair: &ContestantPair) {
-        todo!();
-    }
-
     fn highest_prob_rounds(&self) -> Vec<SavedRound> {
         // self.rounds.sort_by(|a, b| a.get_probability().cmp(b.get_probability()));
         todo!();
@@ -211,26 +214,56 @@ impl BruteForce {
         return (poss_matches_left / 2) as usize
     }
 
+    fn add_perfect_match(&mut self, pair: ContestantPair) {
+        // Remove players in pair from possibilities
+        for (player, player_poss) in self.possibilities.iter_mut() {
+            player_poss.remove(pair.get_a());
+            player_poss.remove(pair.get_b());
+        }
+        // Remove player keys entirely
+        self.possibilities.remove(pair.get_a());
+        self.possibilities.remove(pair.get_b());
+
+        // Add to found perfect matches
+        self.right_matches.insert(pair.clone());
+
+        // eliminate guesses from rounds
+        self.round_manager.perfect_match_found(&pair);
+    }
+
 }
 
 impl GameStrategy for BruteForce {
     fn ceremony_pairs(&mut self) -> Vec<ContestantPair> {
-        todo!();
+        return self.possible_pairing();
     }
 
     fn ceremony_feedback(&mut self, num_right: usize, guess: Vec<ContestantPair>) {
-        todo!();
+        let num_new_correct = num_right - self.right_matches.len(); // only care about number correct of ones we don't care about
+        for pair in guess.iter() {
+            self.remove_guess(pair);
+        }
+        if num_new_correct > 0 {
+            self.round_manager.add_round(guess, num_new_correct);
+        }
+        
     }
 
-    fn send_to_booth(&mut self) -> Option<ContestantPair> {
+    fn send_to_booth(&mut self) -> ContestantPair {
         todo!();
     }
 
     fn booth_feedback(&mut self, feedback: Feedback) {
         match feedback {
-            Feedback::Correct(pair) => self.handle_correct_match(&pair),
+            Feedback::Correct(pair) => {
+                // TODO updates rounds with probabilities
+                // Update all rounds that contain those pairs
+                self.add_perfect_match(pair);
+            },
             Feedback::Wrong => {
+                // TODO update rounds with probabilities
                 // update the rounds that contain this pair
+                self.round_manager.eliminate_guesses(vec![])
             }
         }
     }
@@ -238,6 +271,8 @@ impl GameStrategy for BruteForce {
 
 #[cfg(test)]
 mod tests {
+    use crate::bruteforce::Feedback;
+    use crate::utils::get_matches;
     use crate::utils::gen_contestants;
     use crate::utils::contestants_to_pairs;
     use std::collections::HashMap;
@@ -388,56 +423,60 @@ mod tests {
         assert_eq!(&expected_pair, strategy.possible_pairing().get(0).unwrap());
     }
 
+    #[test]
+    fn test_ceremony_feedback() {
+        let contestants = gen_contestants(12);
+        let perfect_matches = contestants_to_pairs(&contestants);
+
+        let mut strategy = BruteForce::initialize(contestants.iter().collect());
+        let guess = get_matches(&perfect_matches, 2, 4);
+
+        // test round is created with 6 guesses left
+        strategy.ceremony_feedback(2, guess.clone());
+        let latest_round = strategy.round_manager.latest().unwrap();
+
+        assert_eq!(latest_round.guesses_left(), 6);
+
+        // test when 0 matches found
+        strategy.right_matches.insert(perfect_matches.get(0).unwrap().clone());
+
+        let guess2 = get_matches(&perfect_matches, 0, 6);
+        strategy.ceremony_feedback(1, guess2.clone());
+
+        for g in guess2.iter() {
+            assert_eq!(strategy.already_guessed(g.get_a(), g.get_b()), true);
+        }
+    }
 
     #[test]
     fn test_handle_correct_match() {
         let contestants = gen_contestants(12);
-        let strategy = BruteForce::initialize(contestants.iter().collect());
+        let mut strategy = BruteForce::initialize(contestants.iter().collect());
+        
+        let perfect_matches = contestants_to_pairs(&contestants);
 
         // remove players in couple from possible keys
         // also remove each player from couple as possible options for the remaining players
-        let (c1, c2) = (contestants.get(0).unwrap(), contestants.get(1).unwrap());
+        let pm_match = perfect_matches.get(0).unwrap();
+        assert_eq!(strategy.already_guessed(pm_match.get_a(), pm_match.get_b()), false);
 
-        assert_eq!(strategy.already_guessed(c1, c2), false);
-        strategy.handle_correct_match(&ContestantPair::new(c1.clone(), c2.clone()));
-        assert_eq!(strategy.already_guessed(c1, c2), true);
+        // Test when there are rounds that contain the perfect match
+        strategy.add_round(get_matches(&perfect_matches, 2, 4), 2);
+        strategy.add_round(get_matches(&perfect_matches, 1, 5), 1);
+        
+        strategy.booth_feedback(Feedback::Correct(pm_match.clone()));
+        
+        // Test is not a possible guess anymore
+        assert_eq!(strategy.already_guessed(pm_match.get_a(), pm_match.get_b()), true);
 
+        // Test that the round probabilities chance since it contained both
+        assert_eq!(strategy.round_manager.rounds.get(0).unwrap().probability(), 1.0/5.0); // now 1/5 chance of guessing from round
+        assert_eq!(strategy.round_manager.rounds.len(), 1); // round with only one option left before should be removed 
     }
 
     #[test]
-    fn test_handle_corr_in_round() {
-        todo!();
-        let contestants = gen_contestants(12);
-        let strategy = BruteForce::initialize(contestants.iter().collect());
+    fn test_handle_incorrect_match() {
 
-        for i in 0..3 {
-            // TODO
-        }
-    }
-
-    
-
-    #[test]
-    fn test_ceremony_feedback() {
-          todo!();
-        let c = gen_contestants(12);
-        let mut strategy = BruteForce::initialize(c.iter().collect());
-        let guess = contestants_to_pairs(&c);
-
-        // Test is not guessed yet
-        for pair in guess.iter() {
-            assert_eq!(strategy.already_guessed(pair.get_a(), pair.get_b()), false);
-        }
-
-        // If there are no correct matches, it should remove all those possible guesses
-        strategy.ceremony_feedback(0, guess);
-
-        // Should be guessed 
-        for pair in guess.iter() {
-            assert_eq!(strategy.already_guessed(pair.get_a(), pair.get_b()), true);
-        }
-
-        // If there is at least one match, 
     }
 
     #[test]

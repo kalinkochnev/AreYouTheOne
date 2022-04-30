@@ -14,7 +14,7 @@ pub fn contestants_to_pairs(contestants: &Vec<Player>) -> Vec<ContestantPair> {
     let mut pairs = Vec::new();
 
     for i in (0..contestants.len() - 1).step_by(2) {
-        pairs.push(ContestantPair::new(Player::new(i as i32), Player::new((i + 1) as i32)));
+        pairs.push(ContestantPair::new(contestants.get(i).unwrap().clone(), contestants.get(i + 1).unwrap().clone()));
     }
     pairs
 }

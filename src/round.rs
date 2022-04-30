@@ -4,7 +4,7 @@ use crate::contestant::ContestantPair;
 pub struct SavedRound {
     guesses: Vec<ContestantPair>,
     in_consideration: Vec<usize>,
-    num_correct: usize
+    pub num_correct: usize
 }
 
 impl SavedRound {
@@ -34,6 +34,10 @@ impl SavedRound {
         return self.in_consideration.len();
     }
 
+    pub fn guesses_left(&self) -> usize {
+        return self.in_consideration.len();
+    }
+
 
     pub fn probability(&self) -> f32 {
         return (self.num_correct as f32) / (self.num_consideration() as f32);
@@ -51,7 +55,6 @@ impl SavedRound {
         for i in indices_to_remove {
             self.in_consideration.remove(i);
         }
-        
     }
 
 

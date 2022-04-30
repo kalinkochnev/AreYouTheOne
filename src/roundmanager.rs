@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::round::SavedRound;
 
 pub struct RoundManager {
-    rounds: Vec<SavedRound>
+    pub rounds: Vec<SavedRound>
 }
 
 impl RoundManager {
@@ -78,6 +78,28 @@ impl RoundManager {
 
     pub fn latest(&self) -> Option<&SavedRound> {
         return self.rounds.last();
+    }
+
+    pub fn contains(&self, round: &SavedRound) -> bool {
+        return self.rounds.contains(round);
+    }
+
+    pub fn perfect_match_found(&mut self, pair: &ContestantPair) {
+        // Go through each round, see if it contains the pair. If it does,
+        // eliminate guess and decrease number of perfect match
+        for round in self.rounds.iter_mut() {
+            round.num_correct -= 1;
+            round.eliminate_guesses(&vec![pair.clone()]);
+        }
+
+        // remove any rounds that do not have any guesses left
+        self.rounds = self.rounds.iter().cloned().filter(|r| r.num_correct != 0).collect();
+    }
+
+    pub fn eliminate_guesses(&mut self, guesses: Vec<ContestantPair>) {
+        for round in self.rounds.iter_mut() {
+            round.eliminate_guesses(&guesses);
+        }
     }
 }
 
