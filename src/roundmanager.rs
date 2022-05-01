@@ -5,13 +5,15 @@ use std::collections::HashMap;
 use crate::round::SavedRound;
 
 pub struct RoundManager {
-    pub rounds: Vec<SavedRound>
+    pub rounds: Vec<SavedRound>,
+    pub times_round_used: usize
 }
 
 impl RoundManager {
     pub fn new() -> RoundManager {
         return RoundManager{
-            rounds: Vec::new()
+            rounds: Vec::new(),
+            times_round_used: 0,
         }
     }
 
@@ -66,10 +68,11 @@ impl RoundManager {
         self.rounds.push(SavedRound::new(guesses, num_correct));
     }
 
-    pub fn best_guess(&self) -> Option<ContestantPair> {
+    pub fn best_guess(&mut self) -> Option<ContestantPair> {
         match self.most_eff() {
             Some(round) => {
                 let mut player = round.pick_from_round(1);
+                self.times_round_used += 1;
                 return player.pop()
             },
             None => return None
@@ -103,7 +106,7 @@ impl RoundManager {
     }
 
     pub fn pretty_print(&self) {
-        
+
     }
 }
 

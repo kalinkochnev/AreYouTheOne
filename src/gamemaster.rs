@@ -2,6 +2,7 @@ use crate::gamestrategy::Feedback;
 use crate::contestant::{ContestantPair, Player};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use log::{debug, error, trace, info};
 
 pub struct GameMaster {
     iterations: i32,
@@ -49,15 +50,15 @@ impl GameMaster {
     }
 
     pub fn truth_booth(&mut self, guess: ContestantPair) -> Feedback {
-        println!("Attempted match {}", guess);
+        info!("Attempted match {}", guess);
 
         self.iterations += 1;
         if self.is_match(&guess) {
-            println!("Guessed correctly!\n");
+            info!("Guessed correctly!\n");
             self.num_matched += 1;
             return Feedback::Correct(guess);
         } else {
-            println!("Wrong guess!\n");
+            info!("Wrong guess!\n");
             return Feedback::Wrong(guess);
         }
 
@@ -71,7 +72,7 @@ impl GameMaster {
                 num_matches += 1;
             }
         }
-        println!("{} perfect matches are contained!", num_matches);
+        info!("{} perfect matches are contained!", num_matches);
         return num_matches;
     }
 
@@ -206,9 +207,6 @@ use crate::gamestrategy::Feedback;
 
         // Generate 4 random pairs, keep 2 of the correct ones
         let random_pairs: Vec<ContestantPair> = get_matches(&cloned_matches, 2, 4);
-        println!("{}\n", ContestantPairs(&random_pairs));
-        println!("{}", ContestantPairs(&game.matches));
-
         assert_eq!(game.ceremony(&random_pairs), 2); // should have 2 correct
     }
 

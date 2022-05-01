@@ -6,8 +6,8 @@ use std::collections::HashSet;
 use std::collections::HashMap;
 use std::iter::Iterator;
 use crate::gamestrategy::{GameStrategy, Feedback};
-use crate::round::SavedRound;
 use crate::contestant::{Player, ContestantPair};
+use log::{debug, error, trace, info};
 
 pub struct BruteForce {
     contestants: HashSet<Player>,
@@ -125,7 +125,7 @@ impl BruteForce {
 
         match best_player {
             Some((player, count)) => {
-                println!("Highest prob player: {}  len {}", &player, count);
+                debug!("Highest prob player: {}  len {}", &player, count);
                 return Some(player.clone())
             },
             None => return None,
@@ -160,7 +160,7 @@ impl BruteForce {
 
         // keep going until you have found a full set of current_pairs
         while current_pairing.len() < self.contestants.len() / 2 {
-            println!("\n\nPAIRING ATTEMPT/////////////////\n");
+            debug!("\n\nPAIRING ATTEMPT/////////////////\n");
 
             // from the top of the stack, add the next stack of possibilities
             let (player_a, player_a_poss) = poss_stack.last().unwrap().clone();
@@ -170,13 +170,13 @@ impl BruteForce {
                 // add to the current pairing
                 poss_stack.last_mut().unwrap().1.remove(&player_b);
                 current_pairing.push(ContestantPair::new(player_a.clone(), player_b.clone()));
-                println!("Correct pairs: \n{} ", ContestantPairs(&current_pairing[..self.right_matches.len()].to_vec()));
 
-                println!("Current pairing: \n{} ", ContestantPairs(&current_pairing[self.right_matches.len()..].to_vec()));
+                debug!("Correct pairs: \n{} ", ContestantPairs(&current_pairing[..self.right_matches.len()].to_vec()));
+                debug!("Current pairing: \n{} ", ContestantPairs(&current_pairing[self.right_matches.len()..].to_vec()));
 
                 // create the next stack of possibilities
                 let off_limits: HashSet<Player> = pairs_to_contestants(&current_pairing).into_iter().collect();
-                // println!("Off limits: {:?}", &off_limits.iter().map(|player| player.name.clone()).collect::<Vec<String>>());
+                // trace!("Off limits: {:?}", &off_limits.iter().map(|player| player.name.clone()).collect::<Vec<String>>());
 
                 match self.highest_prob_player(&off_limits) {
                     // If there is a player with options left, add it to the stack
@@ -184,7 +184,7 @@ impl BruteForce {
                         let mut player_possibilities = self.possibilities.get(&new_player).unwrap().clone();
                         
                         player_possibilities = BruteForce::filter_possibilities(&player_possibilities, &off_limits);
-                        println!("New: {} - Poss [\n{}]", &new_player, Players(&Vec::from_iter(player_possibilities.iter())));
+                        debug!("New: {} - Poss [\n{}]", &new_player, Players(&Vec::from_iter(player_possibilities.iter())));
 
                         // add the new player and it's possible pairings to the stack
                         poss_stack.push((new_player, player_possibilities));
@@ -193,7 +193,7 @@ impl BruteForce {
                     // Otherwise, do nothing. The next iteration of the loop will either exit
                     // bc all matches were found or will try different combinations
                     None => {
-                        println!("combo found");
+                        debug!("combo found");
                     }
                 };
 
@@ -201,16 +201,14 @@ impl BruteForce {
             } else {
                 // If there is no match, that means there are no possibilities left, means there is a contradition
                 // Keep deleting stacks as long as they are empty (and the current pairing array to remove bad pairs)
-                println!("Moving back up the stack......");
-                // println!("stack: {:#?}", &poss_stack);
-
+                debug!("Moving back up the stack......");
                 let mut new_stack = poss_stack.last_mut().unwrap();
                 while new_stack.1.len() == 0 { // new_stack.1 is the possibilities
-                    // println!("stack: {:#?}", &poss_stack);
+                    trace!("stack: {:#?}", &poss_stack);
                 
                     poss_stack.pop().unwrap();
-                    println!("Popped pair: {:?}", current_pairing.pop());
-                    // println!("new stack: {:#?}", &poss_stack);
+                    debug!("Popped pair: {:?}", current_pairing.pop());
+                    trace!("new stack: {:#?}", &poss_stack);
 
                     new_stack = match poss_stack.last_mut(){
                         Some(item) => {
@@ -279,14 +277,13 @@ impl GameStrategy for BruteForce {
     }
 
     fn send_to_booth(&mut self) -> ContestantPair {
-        if self.round_manager.should_use_round(&self.possibilities) {
-            println!("*******using round best guess*******");
+        if self.round_manager.should_use_round(&self.possibilities) { // self.round_manager.rounds.len() > 5 {
+            info!("*******using round best guess*******");
             return self.round_manager.best_guess().unwrap();
         } else {
-            println!("*******using possibilities best guess*******");
+            info!("*******using possibilities best guess*******");
 
             let player = self.highest_prob_player(&HashSet::new()).unwrap();
-            // println!("truth booth:  player {} possibilities --- {:#?}", &player, &self.possibilities);
 
             let to_pair = self.possibilities.get(&player).unwrap().iter().next().unwrap();
             return ContestantPair::new(player, to_pair.clone());

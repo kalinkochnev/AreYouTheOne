@@ -57,14 +57,16 @@ pub fn gen_contestants(num: usize) -> Vec<Player> {
     players
 }
 
-pub fn pretty_print_poss(possibilities: &HashMap<Player, HashSet<Player>>) {
+pub fn pretty_string_poss(possibilities: &HashMap<Player, HashSet<Player>>) -> String {
+    let mut total_str = String::new();
     for (player, player_poss) in possibilities.iter() {
         let mut poss_string = String::new();
         for poss in player_poss.iter() {
             poss_string.push_str((poss.id.to_string() + " ,").as_str());
         }
-        println!("{}: {{{}}}", player.id, poss_string)
+        total_str.push_str(format!("{}: {{{}}}\n", player.id, poss_string).as_str());
     }
+    return total_str;
 }
 
 
