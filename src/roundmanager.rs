@@ -1,8 +1,10 @@
+use crate::ContestantPairs;
 use crate::contestant::ContestantPair;
 use std::collections::HashSet;
 use crate::contestant::Player;
 use std::collections::HashMap;
 use crate::round::SavedRound;
+use log::{debug, error, trace, info};
 
 pub struct RoundManager {
     pub rounds: Vec<SavedRound>,
@@ -55,8 +57,13 @@ impl RoundManager {
             }
         }
 
+
         match best_player {
             Some(best) => {
+                // if best.1 == 1 {
+                //     return false;
+                // }
+
                 let best_player_prob = 1.0 / best.1 as f32;                
                 return best_round.probability() > best_player_prob;
             },
@@ -96,17 +103,27 @@ impl RoundManager {
         }
 
         // remove any rounds that do not have any guesses left
-        self.rounds = self.rounds.iter().cloned().filter(|r| r.num_correct != 0).collect();
+        let num_saved = self.rounds.len();
+        self.rounds.retain(|round| round.num_consideration() > 0 || round.num_correct == 0);
+        debug!("{} rounds pruned", num_saved - self.rounds.len());
     }
 
     pub fn eliminate_guesses(&mut self, guesses: Vec<ContestantPair>) {
         for round in self.rounds.iter_mut() {
             round.eliminate_guesses(&guesses);
         }
+        let num_saved = self.rounds.len();
+        // eliminate any rounds that are not pruned
+        self.rounds.retain(|round| round.num_consideration() > 0 || round.num_correct == 0);
+        debug!("{} rounds pruned", num_saved - self.rounds.len());
     }
 
-    pub fn pretty_print(&self) {
-
+    pub fn pretty_string(&self) -> String {
+        let mut round_str = String::new();
+        for (i,r) in self.rounds.iter().enumerate() {
+            round_str.push_str(format!("saved round #{} -- {}\n", i, ContestantPairs(&r.pick_from_round(r.num_consideration()))).as_str())
+        }
+        return round_str;
     }
 }
 

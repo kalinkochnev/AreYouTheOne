@@ -77,10 +77,15 @@ impl GameMaster {
     }
 
     pub fn output_stats(&self) {
-        println!("{} perfect matches were found successfully after {} iterations",
-            self.contestants().len(),
-            self.iterations
-        );
+        if self.iterations > self.max_iterations {
+            println!("timed out with {} iterations", self.max_iterations);
+        } else {
+            println!("{} perfect matches were found successfully after {} iterations",
+                self.contestants().len(),
+                self.iterations
+            );
+        }
+        
     }
 
     pub fn get_iterations(&self) -> i32 {
