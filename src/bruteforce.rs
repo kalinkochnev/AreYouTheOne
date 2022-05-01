@@ -1,3 +1,4 @@
+use crate::Players;
 use crate::contestant::ContestantPairs;
 use crate::utils::pairs_to_contestants;
 use crate::roundmanager::RoundManager;
@@ -11,7 +12,7 @@ use crate::contestant::{Player, ContestantPair};
 pub struct BruteForce {
     contestants: HashSet<Player>,
     right_matches: HashSet<ContestantPair>,
-    possibilities: HashMap<Player, HashSet<Player>>,
+    pub possibilities: HashMap<Player, HashSet<Player>>,
     round_manager: RoundManager,
 }
 
@@ -123,7 +124,10 @@ impl BruteForce {
         }
 
         match best_player {
-            Some((player, count)) => return Some(player.clone()),
+            Some((player, count)) => {
+                println!("Highest prob player: {}  len {}", &player, count);
+                return Some(player.clone())
+            },
             None => return None,
         }
     }
@@ -142,6 +146,10 @@ impl BruteForce {
         let mut poss_stack: Vec<(Player, HashSet<Player>)> = Vec::new();
         let mut current_pairing: Vec<ContestantPair> = Vec::new();
 
+        if self.right_matches.len() > 0 {
+            current_pairing.extend(self.right_matches.clone());
+        }
+
         { // Start with the highest likelihood pair
             let initial_player = self.highest_prob_player(&HashSet::new()).unwrap();
             poss_stack.push((
@@ -152,24 +160,31 @@ impl BruteForce {
 
         // keep going until you have found a full set of current_pairs
         while current_pairing.len() < self.contestants.len() / 2 {
-            // println!("Poss {}", ContestantPairs(&current_pairing));
+            println!("\n\nPAIRING ATTEMPT/////////////////\n");
 
             // from the top of the stack, add the next stack of possibilities
-            let (player_a, player_a_poss) = poss_stack.last_mut().unwrap();
-            let player_a_match = player_a_poss.iter().next().cloned();
+            let (player_a, player_a_poss) = poss_stack.last().unwrap().clone();
+            let player_a_match = player_a_poss.iter().next();
             
             if let Some(player_b) = player_a_match {
                 // add to the current pairing
-                player_a_poss.remove(&player_b);
+                poss_stack.last_mut().unwrap().1.remove(&player_b);
                 current_pairing.push(ContestantPair::new(player_a.clone(), player_b.clone()));
+                println!("Correct pairs: \n{} ", ContestantPairs(&current_pairing[..self.right_matches.len()].to_vec()));
+
+                println!("Current pairing: \n{} ", ContestantPairs(&current_pairing[self.right_matches.len()..].to_vec()));
 
                 // create the next stack of possibilities
                 let off_limits: HashSet<Player> = pairs_to_contestants(&current_pairing).into_iter().collect();
+                // println!("Off limits: {:?}", &off_limits.iter().map(|player| player.name.clone()).collect::<Vec<String>>());
+
                 match self.highest_prob_player(&off_limits) {
                     // If there is a player with options left, add it to the stack
                     Some(new_player) => {
                         let mut player_possibilities = self.possibilities.get(&new_player).unwrap().clone();
+                        
                         player_possibilities = BruteForce::filter_possibilities(&player_possibilities, &off_limits);
+                        println!("New: {} - Poss [\n{}]", &new_player, Players(&Vec::from_iter(player_possibilities.iter())));
 
                         // add the new player and it's possible pairings to the stack
                         poss_stack.push((new_player, player_possibilities));
@@ -177,19 +192,36 @@ impl BruteForce {
 
                     // Otherwise, do nothing. The next iteration of the loop will either exit
                     // bc all matches were found or will try different combinations
-                    None => {}
+                    None => {
+                        println!("combo found");
+                    }
                 };
 
             
             } else {
                 // If there is no match, that means there are no possibilities left, means there is a contradition
                 // Keep deleting stacks as long as they are empty (and the current pairing array to remove bad pairs)
+                println!("Moving back up the stack......");
+                println!("stack: {:#?}", &poss_stack);
+
                 let mut new_stack = poss_stack.last_mut().unwrap();
                 while new_stack.1.len() == 0 { // new_stack.1 is the possibilities
+                    println!("stack: {:#?}", &poss_stack);
+                
                     poss_stack.pop().unwrap();
-                    current_pairing.pop();
-                    
-                    new_stack = poss_stack.last_mut().unwrap();
+                    println!("Popped pair: {:?}", current_pairing.pop());
+                    println!("new stack: {:#?}", &poss_stack);
+
+                    new_stack = match poss_stack.last_mut(){
+                        Some(item) => {
+                            item
+                        }
+                        None => {
+                            println!("num poss: {}", self.possibilities.len());
+                            panic!();
+                        }
+
+                    }
                 }
             }
         }
@@ -205,7 +237,7 @@ impl BruteForce {
         self.round_manager.add_round(guess, num_correct);
     }
 
-    fn poss_left(&self) -> usize {
+    pub fn poss_left(&self) -> usize {
         let mut poss_matches_left = 0;
         for (player, poss_matches) in self.possibilities.iter() {
             poss_matches_left += poss_matches.len();
@@ -240,30 +272,40 @@ impl GameStrategy for BruteForce {
 
     fn ceremony_feedback(&mut self, num_right: usize, guess: Vec<ContestantPair>) {
         let num_new_correct = num_right - self.right_matches.len(); // only care about number correct of ones we don't care about
-        for pair in guess.iter() {
-            self.remove_guess(pair);
-        }
-        if num_new_correct > 0 {
+        
+        
+        if num_new_correct == 0 {
+            for pair in guess.iter() {
+                self.remove_guess(pair);
+            }
+        } else {
             self.round_manager.add_round(guess, num_new_correct);
         }
         
     }
 
     fn send_to_booth(&mut self) -> ContestantPair {
-        todo!();
+        if self.round_manager.should_use_round(&self.possibilities) {
+            println!("*******using round best guess*******");
+            return self.round_manager.best_guess().unwrap();
+        } else {
+            println!("*******using possibilities best guess*******");
+
+            let player = self.highest_prob_player(&HashSet::new()).unwrap();
+            // println!("truth booth:  player {} possibilities --- {:#?}", &player, &self.possibilities);
+
+            let to_pair = self.possibilities.get(&player).unwrap().iter().next().unwrap();
+            return ContestantPair::new(player, to_pair.clone());
+        }
     }
 
     fn booth_feedback(&mut self, feedback: Feedback) {
         match feedback {
             Feedback::Correct(pair) => {
-                // TODO updates rounds with probabilities
-                // Update all rounds that contain those pairs
                 self.add_perfect_match(pair);
             },
-            Feedback::Wrong => {
-                // TODO update rounds with probabilities
-                // update the rounds that contain this pair
-                self.round_manager.eliminate_guesses(vec![])
+            Feedback::Wrong(pair) => {
+                self.remove_guess(&pair);
             }
         }
     }
@@ -476,7 +518,24 @@ mod tests {
 
     #[test]
     fn test_handle_incorrect_match() {
+        let contestants = gen_contestants(12);
+        let mut strategy = BruteForce::initialize(contestants.iter().collect());
+        
+        let matches = contestants_to_pairs(&contestants);
+        let wrong_guess = matches.get(0).unwrap().clone();
 
+        assert_eq!(strategy.already_guessed(wrong_guess.get_a(), wrong_guess.get_b()), false);
+
+        strategy.add_round(matches.clone(), 2);
+        strategy.add_round(matches.clone(), 1);
+
+        // test when the truth booth did not have the perfect match
+        strategy.booth_feedback(Feedback::Wrong(wrong_guess.clone()));
+        assert_eq!(strategy.already_guessed(wrong_guess.get_a(), wrong_guess.get_b()), true);
+
+        // Test that the round probabilities change
+        assert_eq!(strategy.round_manager.rounds.get(0).unwrap().probability(), 2.0/5.0); 
+        assert_eq!(strategy.round_manager.rounds.get(1).unwrap().probability(), 1.0/5.0); 
     }
 
     #[test]

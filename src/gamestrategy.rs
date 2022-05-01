@@ -3,7 +3,7 @@ use crate::contestant::{ContestantPair};
 #[derive(Debug, PartialEq)]
 pub enum Feedback {
     Correct(ContestantPair),
-    Wrong
+    Wrong(ContestantPair)
 }
 
 pub trait GameStrategy {

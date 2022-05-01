@@ -6,6 +6,10 @@ pub mod utils;
 pub mod round;
 pub mod roundmanager;
 
+use std::time;
+use crate::utils::pretty_print_poss;
+use crate::contestant::ContestantPairs;
+use crate::contestant::Players;
 use crate::gamemaster::GameMaster;
 use crate::gamestrategy::GameStrategy;
 use crate::bruteforce::BruteForce;
@@ -81,13 +85,23 @@ Goals:
 fn main() {
     let mut game = GameMaster::initialize_game(12, 500);
     let mut strategy = BruteForce::initialize(game.contestants());
+    println!("{}", ContestantPairs(&game.matches));
+    let ten_millis = time::Duration::from_secs(3);
+
+    std::thread::sleep(ten_millis);
 
     while game.in_progress() {
-        let guess = strategy.ceremony_pairs();
-        
-        let num_correct = game.ceremony(&guess);
-        strategy.ceremony_feedback(num_correct, guess);
+        println!("\\/\\/\\/\\/\\/\\/\\/\\/ROUND {}\\/\\/\\/\\/\\/\\/\\/\\/", game.get_iterations());
 
+        let guess = strategy.ceremony_pairs();
+        println!("Ceremony guess -----------------------------------------------");
+        let num_correct = game.ceremony(&guess);
+        if num_correct == game.contestants().len() /2 {
+            break;
+        }
+        strategy.ceremony_feedback(num_correct, guess);
+        pretty_print_poss(&strategy.possibilities);
+        println!("Poss remaining: {}, Num correct: {}", strategy.poss_left(), game.num_matched);
         let booth_result = game.truth_booth(strategy.send_to_booth());
         strategy.booth_feedback(booth_result);
     }

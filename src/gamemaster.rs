@@ -5,8 +5,8 @@ use rand::thread_rng;
 
 pub struct GameMaster {
     iterations: i32,
-    num_matched: i32,
-    matches: Vec<ContestantPair>,
+    pub num_matched: i32,
+    pub matches: Vec<ContestantPair>,
     max_iterations: i32,
 }
 
@@ -49,7 +49,6 @@ impl GameMaster {
     }
 
     pub fn truth_booth(&mut self, guess: ContestantPair) -> Feedback {
-        println!("ROUND {}-------", self.iterations);
         println!("Attempted match {}", guess);
 
         self.iterations += 1;
@@ -59,12 +58,13 @@ impl GameMaster {
             return Feedback::Correct(guess);
         } else {
             println!("Wrong guess!\n");
-            return Feedback::Wrong;
+            return Feedback::Wrong(guess);
         }
 
     }
 
     pub fn ceremony(&self, pairs: &Vec<ContestantPair>) -> usize {
+
         let mut num_matches = 0;
         for p in pairs.iter() {
             if self.is_match(p) {
@@ -184,7 +184,7 @@ use crate::gamestrategy::Feedback;
 
         let wrong_match = get_matches(&game.matches, 0, 1).pop().unwrap();
 
-        assert_eq!(game.truth_booth(wrong_match), Feedback::Wrong);
+        assert_eq!(game.truth_booth(wrong_match.clone()), Feedback::Wrong(wrong_match));
         assert_eq!(game.iterations, 1);
         assert_eq!(game.num_matched, 0);
 

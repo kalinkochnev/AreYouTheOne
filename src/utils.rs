@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+use std::collections::HashMap;
 use crate::contestant::Player;
 use crate::contestant::ContestantPair;
 
@@ -53,6 +55,16 @@ pub fn gen_contestants(num: usize) -> Vec<Player> {
         players.push(Player::new(i as i32));
     }
     players
+}
+
+pub fn pretty_print_poss(possibilities: &HashMap<Player, HashSet<Player>>) {
+    for (player, player_poss) in possibilities.iter() {
+        let mut poss_string = String::new();
+        for poss in player_poss.iter() {
+            poss_string.push_str((poss.id.to_string() + " ,").as_str());
+        }
+        println!("{}: {{{}}}", player.id, poss_string)
+    }
 }
 
 
