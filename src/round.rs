@@ -44,20 +44,8 @@ impl SavedRound {
     }
 
     pub fn eliminate_guesses(&mut self, pairs: &Vec<ContestantPair>) {
-        let mut indices_to_remove = vec![];
-
-        for (index, guess) in self.guesses.iter().enumerate() {
-            if pairs.contains(guess) {
-                indices_to_remove.push(index);
-            }
-        }
-
-        for i in indices_to_remove {
-            self.in_consideration.remove(i);
-        }
+        self.in_consideration.retain(|&i| !pairs.contains(self.guesses.get(i).unwrap()));
     }
-
-
 }
 
 #[cfg(test)]
@@ -75,9 +63,9 @@ mod tests {
         let mut round = SavedRound::new(guesses, 2);
         assert_eq!(round.num_consideration(), 6);
 
-        round.eliminate_guesses(&round.guesses[0..3].to_vec());
+        round.eliminate_guesses(&round.guesses[0..6].to_vec());
 
-        assert_eq!(round.num_consideration(), 3);
+        assert_eq!(round.num_consideration(), 0);
     }
 
 

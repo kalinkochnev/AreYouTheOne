@@ -101,6 +101,10 @@ impl RoundManager {
             round.eliminate_guesses(&guesses);
         }
     }
+
+    pub fn pretty_print(&self) {
+        
+    }
 }
 
 #[cfg(test)]

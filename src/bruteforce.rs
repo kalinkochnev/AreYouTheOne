@@ -202,23 +202,22 @@ impl BruteForce {
                 // If there is no match, that means there are no possibilities left, means there is a contradition
                 // Keep deleting stacks as long as they are empty (and the current pairing array to remove bad pairs)
                 println!("Moving back up the stack......");
-                println!("stack: {:#?}", &poss_stack);
+                // println!("stack: {:#?}", &poss_stack);
 
                 let mut new_stack = poss_stack.last_mut().unwrap();
                 while new_stack.1.len() == 0 { // new_stack.1 is the possibilities
-                    println!("stack: {:#?}", &poss_stack);
+                    // println!("stack: {:#?}", &poss_stack);
                 
                     poss_stack.pop().unwrap();
                     println!("Popped pair: {:?}", current_pairing.pop());
-                    println!("new stack: {:#?}", &poss_stack);
+                    // println!("new stack: {:#?}", &poss_stack);
 
                     new_stack = match poss_stack.last_mut(){
                         Some(item) => {
                             item
                         }
                         None => {
-                            println!("num poss: {}", self.possibilities.len());
-                            panic!();
+                            panic!("It should not be possible to have no combinations left when the game is still going");
                         }
 
                     }
@@ -226,11 +225,6 @@ impl BruteForce {
             }
         }
         return current_pairing;
-    }
-
-    fn highest_prob_rounds(&self) -> Vec<SavedRound> {
-        // self.rounds.sort_by(|a, b| a.get_probability().cmp(b.get_probability()));
-        todo!();
     }
 
     fn add_round(&mut self, guess: Vec<ContestantPair>, num_correct: usize) {
