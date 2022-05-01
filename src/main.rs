@@ -72,7 +72,7 @@ fn generate_normal_game_distribution(num_trials: usize, file_name: &str) -> Resu
         .y_label_area_size(40 as u32)
         .margin(5 as u32)
         .caption("Are You The One Distribution of Rounds To Win", ("sans-serif", 25 as f32))
-        .build_cartesian_2d((0u32..25u32).into_segmented(), 0u32..250u32)?;
+        .build_cartesian_2d((0u32..25u32).into_segmented(), 0u32..1000u32)?;
 
     chart
         .configure_mesh()
@@ -138,6 +138,6 @@ fn generate_running_time_plot(max_pairs: i32, step_size: usize, iterations: usiz
 fn main() {
     // simple_logging::log_to_file("test.log", LevelFilter::Trace);
 
-    // generate_normal_game_distribution(2000, "normal_game_bruteforce_round_optimization.png");
+    generate_normal_game_distribution(2000, "normal_game_bruteforce_round_optimization.png");
     generate_running_time_plot(100, 2, 4, "running_time_bruteforce_round_optimization.png");
 }
