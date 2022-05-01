@@ -93,7 +93,7 @@ impl GameMaster {
     }
 
     pub fn in_progress(&self) -> bool {
-        return (self.iterations < self.max_iterations) && (self.num_matched != i32::try_from(self.matches.len()).unwrap());
+        return (self.iterations < self.max_iterations) && (self.num_matched < (self.matches.len() as i32)-1);
     }
 }
 

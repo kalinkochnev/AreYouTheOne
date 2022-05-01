@@ -92,7 +92,6 @@ impl BruteForce {
 
             // eliminate guesses from rounds
             self.round_manager.eliminate_guesses(vec![pair.clone()]);
-
         }
     }
 
@@ -135,7 +134,8 @@ impl BruteForce {
 
         match best_player {
             Some((player, count)) => {
-                debug!("Highest prob player: {}  len {}", &player, count);
+                // TODO this can be improved significantly to use the round manager instead
+                trace!("Highest prob player: {}  len {}", &player, count);
                 return Some(player.clone());
             }
             None => return None,
@@ -174,21 +174,22 @@ impl BruteForce {
 
         // keep going until you have found a full set of current_pairs
         while current_pairing.len() < self.contestants.len() / 2 {
-            debug!("\n\nPAIRING ATTEMPT/////////////////\n");
+            trace!("\n\nPAIRING ATTEMPT/////////////////\n");
 
             // from the top of the stack, add the next stack of possibilities
             let (player_a, player_a_poss) = poss_stack.last().unwrap().clone();
             let player_a_match = player_a_poss.iter().next();
+            
             if let Some(player_b) = player_a_match {
                 // add to the current pairing
                 poss_stack.last_mut().unwrap().1.remove(&player_b);
                 current_pairing.push(ContestantPair::new(player_a.clone(), player_b.clone()));
 
-                debug!(
+                trace!(
                     "Correct pairs: \n{} ",
                     ContestantPairs(&current_pairing[..self.right_matches.len()].to_vec())
                 );
-                debug!(
+                trace!(
                     "Current pairing: \n{} ",
                     ContestantPairs(&current_pairing[self.right_matches.len()..].to_vec())
                 );
@@ -206,7 +207,7 @@ impl BruteForce {
 
                         player_possibilities =
                             BruteForce::filter_possibilities(&player_possibilities, &off_limits);
-                        debug!(
+                        trace!(
                             "New: {} - Poss [\n{}]",
                             &new_player,
                             Players(&Vec::from_iter(player_possibilities.iter()))
@@ -236,11 +237,17 @@ impl BruteForce {
                     new_stack = match poss_stack.last_mut() {
                         Some(item) => item,
                         None => {
-                            debug!("new stack: {:#?}", &poss_stack);
-
-                            debug!("{}", pretty_string_poss(&self.possibilities));
-
-                            panic!("It should not be possible to have no combinations left when the game is still going");
+                            let initial_player = self.highest_prob_player(&HashSet::new()).unwrap();
+                            
+                            poss_stack.push((
+                                initial_player.clone(),
+                                self.possibilities.get(&initial_player).unwrap().clone(),
+                            ));
+                            info!("new stack: {:#?}", &poss_stack);
+                            info!("{}", pretty_string_poss(&self.possibilities));
+                            poss_stack.last_mut().unwrap()
+                            
+                            // panic!("It should not be possible to have no combinations left when the game is still going");
                         }
                     }
                 }
@@ -251,6 +258,7 @@ impl BruteForce {
 
     fn add_round(&mut self, guess: Vec<ContestantPair>, num_correct: usize) {
         self.round_manager.add_round(guess, num_correct);
+        self.round_manager.eliminate_guesses(Vec::from_iter(self.right_matches.clone()));
     }
 
     pub fn poss_left(&self) -> usize {
@@ -293,11 +301,16 @@ impl GameStrategy for BruteForce {
         let num_new_correct = num_right - self.right_matches.len(); // only care about number correct of ones we don't care about
         
         if num_new_correct == 0 {
+            debug!("Rounds pre remove------\n{}", self.round_manager.pretty_string());
+
             for pair in guess.iter() {
                 self.remove_guess(pair);
             }
+            self.round_manager.prune_rounds();
+            debug!("Rounds post remove------\n{}", self.round_manager.pretty_string());
+
         } else {
-            self.round_manager.add_round(guess, num_new_correct);
+            self.add_round(guess, num_new_correct);
         }
     }
 
@@ -305,11 +318,11 @@ impl GameStrategy for BruteForce {
         if self.round_manager.should_use_round(&self.possibilities) {
             // self.round_manager.rounds.len() > 5 {
             info!("*******using round best guess*******");
-            debug!("{}", self.round_manager.pretty_string());
+            // debug!("{}", self.round_manager.pretty_string());
             return self.round_manager.best_guess().unwrap();
+            
         } else {
             info!("*******using possibilities best guess*******");
-
             let player = self.highest_prob_player(&HashSet::new()).unwrap();
 
             let to_pair = self
@@ -324,15 +337,19 @@ impl GameStrategy for BruteForce {
     }
 
     fn booth_feedback(&mut self, feedback: Feedback) {
+        debug!("Rounds pre remove------\n{}", self.round_manager.pretty_string());
+
         match feedback {
             Feedback::Correct(pair) => {
                 self.add_perfect_match(pair);
             }
             Feedback::Wrong(pair) => {
-                self.round_manager.eliminate_guesses(vec![pair.clone()]);
                 self.remove_guess(&pair);
             }
         }
+        self.round_manager.prune_rounds();
+        debug!("Rounds post remove------\n{}", self.round_manager.pretty_string());
+
     }
 }
 

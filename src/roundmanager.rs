@@ -8,7 +8,8 @@ use log::{debug, error, trace, info};
 
 pub struct RoundManager {
     pub rounds: Vec<SavedRound>,
-    pub times_round_used: usize
+    pub times_round_used: usize,
+    last_round_id: u32,
 }
 
 impl RoundManager {
@@ -16,6 +17,7 @@ impl RoundManager {
         return RoundManager{
             rounds: Vec::new(),
             times_round_used: 0,
+            last_round_id: 0,
         }
     }
 
@@ -36,7 +38,7 @@ impl RoundManager {
 
     /* We should use a round if it has a higher chance of finding a pair
     than just eliminating possibilities*/
-    pub fn should_use_round(&self, possibilities: &HashMap<Player, HashSet<Player>>) -> bool {
+    pub fn should_use_round(&mut self, possibilities: &HashMap<Player, HashSet<Player>>) -> bool {
         let best_round = match self.most_eff() {
             None => return false,
             Some(round) => { round },
@@ -60,10 +62,17 @@ impl RoundManager {
 
         match best_player {
             Some(best) => {
-                // if best.1 == 1 {
-                //     return false;
-                // }
-
+                debug!("~~~~~~Round decider~~~~~~~~~\nRound: {} \nBest round guess: {} prob {} remaining {} num corr {}\n Best brute guess: {} prob {} remaining {}",
+                    &ContestantPairs(&best_round.pick_from_round(best_round.num_consideration())),
+                    best_round.pick_from_round(1).pop().unwrap(),
+                    best_round.probability(),
+                    best_round.num_consideration(),
+                    best_round.num_correct,
+                    best.0,
+                    1.0 / best.1 as f32,
+                    best.1
+                );
+                // TODO pick the contestant pair that has the best_player
                 let best_player_prob = 1.0 / best.1 as f32;                
                 return best_round.probability() > best_player_prob;
             },
@@ -72,7 +81,8 @@ impl RoundManager {
     }
 
     pub fn add_round(&mut self, guesses: Vec<ContestantPair>, num_correct: usize) {
-        self.rounds.push(SavedRound::new(guesses, num_correct));
+        self.last_round_id += 1;
+        self.rounds.push(SavedRound::new(guesses, num_correct, self.last_round_id));
     }
 
     pub fn best_guess(&mut self) -> Option<ContestantPair> {
@@ -89,7 +99,9 @@ impl RoundManager {
     pub fn latest(&self) -> Option<&SavedRound> {
         return self.rounds.last();
     }
-
+    pub fn latest_mut(&mut self) -> Option<&mut SavedRound> {
+        return self.rounds.last_mut();
+    }
     pub fn contains(&self, round: &SavedRound) -> bool {
         return self.rounds.contains(round);
     }
@@ -98,32 +110,37 @@ impl RoundManager {
         // Go through each round, see if it contains the pair. If it does,
         // eliminate guess and decrease number of perfect match
         for round in self.rounds.iter_mut() {
-            round.num_correct -= 1;
-            round.eliminate_guesses(&vec![pair.clone()]);
-        }
 
-        // remove any rounds that do not have any guesses left
-        let num_saved = self.rounds.len();
-        self.rounds.retain(|round| round.num_consideration() > 0 || round.num_correct == 0);
-        debug!("{} rounds pruned", num_saved - self.rounds.len());
+            if round.num_correct > 0 {
+                round.num_correct -= 1;
+            }
+            round.eliminate_player(pair.get_a());
+            round.eliminate_player(pair.get_b());
+        }
     }
 
     pub fn eliminate_guesses(&mut self, guesses: Vec<ContestantPair>) {
+
         for round in self.rounds.iter_mut() {
             round.eliminate_guesses(&guesses);
         }
-        let num_saved = self.rounds.len();
-        // eliminate any rounds that are not pruned
-        self.rounds.retain(|round| round.num_consideration() > 0 || round.num_correct == 0);
-        debug!("{} rounds pruned", num_saved - self.rounds.len());
     }
 
     pub fn pretty_string(&self) -> String {
         let mut round_str = String::new();
-        for (i,r) in self.rounds.iter().enumerate() {
-            round_str.push_str(format!("saved round #{} -- {}\n", i, ContestantPairs(&r.pick_from_round(r.num_consideration()))).as_str())
+        for r in self.rounds.iter() {
+            round_str.push_str(format!("saved round #{} -- \n{}\n", r.round_id, ContestantPairs(&r.pick_from_round(r.num_consideration()))).as_str())
         }
         return round_str;
+    }
+
+    /* Returns how many rounds were pruned */
+    pub fn prune_rounds(&mut self) -> usize {
+        let num_saved = self.rounds.len();
+        // eliminate any rounds that are not pruned
+        self.rounds.retain(|round| round.num_consideration() > 0 && round.num_correct != 0);
+        debug!("{} rounds pruned", num_saved - self.rounds.len());
+        return num_saved - self.rounds.len();
     }
 }
 
@@ -172,5 +189,25 @@ mod tests {
         c0_poss.insert(c[1].clone()); // this should make a 100% chance for straight guessing from possibilities
         assert_eq!(round_manager.should_use_round(&possibilities), false);
 
+    }
+
+    #[test]
+    fn test_prune_rounds() {
+        let c = gen_contestants(10);
+        let mut round_manager = RoundManager::new();
+        round_manager.add_round(contestants_to_pairs(&c), 0);
+        round_manager.add_round(contestants_to_pairs(&c), 0);
+        round_manager.add_round(contestants_to_pairs(&c), 0);
+        assert_eq!(round_manager.rounds.len(), 3);
+        
+        assert_eq!(round_manager.prune_rounds(), 3);
+        assert_eq!(round_manager.rounds.len(), 0);
+
+        let guess = contestants_to_pairs(&c);
+        round_manager.add_round(guess.clone(), 0);
+        let mut latest = round_manager.rounds.last_mut().unwrap();
+        latest.eliminate_guesses(&guess);
+        assert_eq!(round_manager.prune_rounds(), 1);
+        assert_eq!(round_manager.rounds.len(), 0);
     }
 }
