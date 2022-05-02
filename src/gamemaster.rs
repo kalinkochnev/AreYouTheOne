@@ -1,3 +1,4 @@
+use crate::ContestantPairs;
 use crate::gamestrategy::Feedback;
 use crate::contestant::{ContestantPair, Player};
 use rand::seq::SliceRandom;
@@ -64,8 +65,8 @@ impl GameMaster {
 
     }
 
-    pub fn ceremony(&self, pairs: &Vec<ContestantPair>) -> usize {
-
+    pub fn ceremony(&mut self, pairs: &Vec<ContestantPair>) -> usize {
+        info!("\n{}", &ContestantPairs(pairs));
         let mut num_matches = 0;
         for p in pairs.iter() {
             if self.is_match(p) {
@@ -73,6 +74,9 @@ impl GameMaster {
             }
         }
         info!("{} perfect matches are contained!", num_matches);
+        if num_matches == self.matches.len() {
+            self.num_matched = num_matches as i32;
+        }
         return num_matches;
     }
 
@@ -81,7 +85,7 @@ impl GameMaster {
             println!("timed out with {} iterations", self.max_iterations);
         } else {
             println!("{} perfect matches were found successfully after {} iterations",
-                self.contestants().len(),
+                self.contestants().len() / 2,
                 self.iterations
             );
         }

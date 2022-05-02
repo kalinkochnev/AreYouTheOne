@@ -19,9 +19,9 @@ use crate::bruteforce::BruteForce;
 
 const OUTPUT_FOLDER: &'static str = "trials/";
 
-fn game(num_pairs: i32, timeout_rounds: usize) -> u32 {
+fn game(num_players: i32, timeout_rounds: usize) -> u32 {
 
-    let mut game = GameMaster::initialize_game(num_pairs, timeout_rounds as i32);
+    let mut game = GameMaster::initialize_game(num_players, timeout_rounds as i32);
 
     let mut strategy = BruteForce::initialize(game.contestants());
     info!("-------------------------Correct pairing-------------------------\n{}", ContestantPairs(&game.matches));
@@ -53,7 +53,7 @@ fn generate_normal_game_distribution(num_trials: usize, file_name: &str) -> Resu
     let mut frequency_map: HashMap<u32, u32> = HashMap::new();
     while trial < num_trials {
         trial += 1;
-        let num_rounds = game(8, 500);
+        let num_rounds = game(16, 500);
 
         if frequency_map.contains_key(&num_rounds) {
             let count = frequency_map.get_mut(&num_rounds).unwrap();
@@ -136,8 +136,8 @@ fn generate_running_time_plot(max_pairs: i32, step_size: usize, iterations: usiz
 }
 
 fn main() {
-    // simple_logging::log_to_file("test.log", LevelFilter::Trace);
-
+    // simple_logging::log_to_file("test.log", LevelFilter::Info);
+    // game(16, 500);
     generate_normal_game_distribution(2000, "normal_game_bruteforce_round_optimization.png");
     generate_running_time_plot(100, 2, 4, "running_time_bruteforce_round_optimization.png");
 }

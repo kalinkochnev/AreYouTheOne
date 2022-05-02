@@ -1,0 +1,185 @@
+[00:00:00.075] (7f37aaa6c7c0) INFO   -------------------------Correct pairing-------------------------
+Contestant 0 (Dorcas), Contestant 1 (Gullermo)
+Contestant 2 (Velencia), Contestant 3 (Len)
+Contestant 4 (Debora), Contestant 5 (Jermaine)
+Contestant 6 (Christopherlee), Contestant 7 (Iveth)
+Contestant 8 (Simi), Contestant 9 (Bartolo)
+Contestant 10 (Ivane), Contestant 11 (Queenie)
+Contestant 12 (Aliea), Contestant 13 (Montrez)
+Contestant 14 (Reshard), Contestant 15 (Katrinia)
+
+[00:00:00.076] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 0\/\/\/\/\/\/\/\/
+[00:00:00.077] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 0 -----------------------------------------------
+[00:00:00.077] (7f37aaa6c7c0) INFO   
+Contestant 15 (Katrinia), Contestant 6 (Christopherlee)
+Contestant 0 (Dorcas), Contestant 5 (Jermaine)
+Contestant 13 (Montrez), Contestant 2 (Velencia)
+Contestant 12 (Aliea), Contestant 7 (Iveth)
+Contestant 8 (Simi), Contestant 14 (Reshard)
+Contestant 1 (Gullermo), Contestant 11 (Queenie)
+Contestant 9 (Bartolo), Contestant 4 (Debora)
+Contestant 10 (Ivane), Contestant 3 (Len)
+
+[00:00:00.078] (7f37aaa6c7c0) INFO   0 perfect matches are contained!
+[00:00:00.078] (7f37aaa6c7c0) INFO   Poss remaining: 112, Num correct: 0
+[00:00:00.079] (7f37aaa6c7c0) INFO   *******using possibilities best guess*******
+[00:00:00.079] (7f37aaa6c7c0) INFO   Attempted match Contestant 15 (Katrinia), Contestant 12 (Aliea)
+[00:00:00.079] (7f37aaa6c7c0) INFO   Wrong guess!
+
+[00:00:00.080] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 1\/\/\/\/\/\/\/\/
+[00:00:00.080] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 0 -----------------------------------------------
+[00:00:00.080] (7f37aaa6c7c0) INFO   
+Contestant 15 (Katrinia), Contestant 4 (Debora)
+Contestant 12 (Aliea), Contestant 8 (Simi)
+Contestant 0 (Dorcas), Contestant 1 (Gullermo)
+Contestant 13 (Montrez), Contestant 14 (Reshard)
+Contestant 5 (Jermaine), Contestant 2 (Velencia)
+Contestant 7 (Iveth), Contestant 6 (Christopherlee)
+Contestant 9 (Bartolo), Contestant 3 (Len)
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+
+[00:00:00.082] (7f37aaa6c7c0) INFO   3 perfect matches are contained!
+[00:00:00.082] (7f37aaa6c7c0) INFO   Poss remaining: 111, Num correct: 0
+[00:00:00.083] (7f37aaa6c7c0) INFO   *******using round best guess*******
+[00:00:00.083] (7f37aaa6c7c0) INFO   Attempted match Contestant 11 (Queenie), Contestant 10 (Ivane)
+[00:00:00.083] (7f37aaa6c7c0) INFO   Guessed correctly!
+
+[00:00:00.084] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 2\/\/\/\/\/\/\/\/
+[00:00:00.084] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 1 -----------------------------------------------
+[00:00:00.084] (7f37aaa6c7c0) INFO   
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+Contestant 15 (Katrinia), Contestant 4 (Debora)
+Contestant 12 (Aliea), Contestant 1 (Gullermo)
+Contestant 0 (Dorcas), Contestant 14 (Reshard)
+Contestant 13 (Montrez), Contestant 3 (Len)
+Contestant 8 (Simi), Contestant 9 (Bartolo)
+Contestant 5 (Jermaine), Contestant 7 (Iveth)
+Contestant 2 (Velencia), Contestant 6 (Christopherlee)
+
+[00:00:00.085] (7f37aaa6c7c0) INFO   2 perfect matches are contained!
+[00:00:00.085] (7f37aaa6c7c0) INFO   Poss remaining: 84, Num correct: 1
+[00:00:00.085] (7f37aaa6c7c0) INFO   *******using round best guess*******
+[00:00:00.085] (7f37aaa6c7c0) INFO   Attempted match Contestant 9 (Bartolo), Contestant 3 (Len)
+[00:00:00.085] (7f37aaa6c7c0) INFO   Wrong guess!
+
+[00:00:00.085] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 3\/\/\/\/\/\/\/\/
+[00:00:00.085] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 2 -----------------------------------------------
+[00:00:00.085] (7f37aaa6c7c0) INFO   
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+Contestant 15 (Katrinia), Contestant 4 (Debora)
+Contestant 12 (Aliea), Contestant 0 (Dorcas)
+Contestant 9 (Bartolo), Contestant 6 (Christopherlee)
+Contestant 13 (Montrez), Contestant 8 (Simi)
+Contestant 5 (Jermaine), Contestant 2 (Velencia)
+Contestant 7 (Iveth), Contestant 3 (Len)
+Contestant 14 (Reshard), Contestant 1 (Gullermo)
+
+[00:00:00.086] (7f37aaa6c7c0) INFO   1 perfect matches are contained!
+[00:00:00.086] (7f37aaa6c7c0) INFO   Poss remaining: 76, Num correct: 1
+[00:00:00.086] (7f37aaa6c7c0) INFO   *******using round best guess*******
+[00:00:00.086] (7f37aaa6c7c0) INFO   Attempted match Contestant 7 (Iveth), Contestant 6 (Christopherlee)
+[00:00:00.086] (7f37aaa6c7c0) INFO   Guessed correctly!
+
+[00:00:00.087] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 4\/\/\/\/\/\/\/\/
+[00:00:00.087] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 3 -----------------------------------------------
+[00:00:00.087] (7f37aaa6c7c0) INFO   
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+Contestant 7 (Iveth), Contestant 6 (Christopherlee)
+Contestant 15 (Katrinia), Contestant 1 (Gullermo)
+Contestant 0 (Dorcas), Contestant 3 (Len)
+Contestant 13 (Montrez), Contestant 12 (Aliea)
+Contestant 8 (Simi), Contestant 2 (Velencia)
+Contestant 5 (Jermaine), Contestant 14 (Reshard)
+Contestant 5 (Jermaine), Contestant 4 (Debora)
+
+[00:00:00.087] (7f37aaa6c7c0) INFO   4 perfect matches are contained!
+[00:00:00.087] (7f37aaa6c7c0) INFO   Poss remaining: 55, Num correct: 2
+[00:00:00.087] (7f37aaa6c7c0) INFO   *******using round best guess*******
+[00:00:00.087] (7f37aaa6c7c0) INFO   Attempted match Contestant 13 (Montrez), Contestant 14 (Reshard)
+[00:00:00.088] (7f37aaa6c7c0) INFO   Wrong guess!
+
+[00:00:00.088] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 5\/\/\/\/\/\/\/\/
+[00:00:00.088] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 4 -----------------------------------------------
+[00:00:00.088] (7f37aaa6c7c0) INFO   
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+Contestant 7 (Iveth), Contestant 6 (Christopherlee)
+Contestant 13 (Montrez), Contestant 0 (Dorcas)
+Contestant 14 (Reshard), Contestant 2 (Velencia)
+Contestant 15 (Katrinia), Contestant 1 (Gullermo)
+Contestant 12 (Aliea), Contestant 5 (Jermaine)
+Contestant 8 (Simi), Contestant 3 (Len)
+Contestant 8 (Simi), Contestant 9 (Bartolo)
+
+[00:00:00.088] (7f37aaa6c7c0) INFO   3 perfect matches are contained!
+[00:00:00.088] (7f37aaa6c7c0) INFO   Poss remaining: 54, Num correct: 2
+[00:00:00.089] (7f37aaa6c7c0) INFO   *******using round best guess*******
+[00:00:00.089] (7f37aaa6c7c0) INFO   Attempted match Contestant 0 (Dorcas), Contestant 1 (Gullermo)
+[00:00:00.089] (7f37aaa6c7c0) INFO   Guessed correctly!
+
+[00:00:00.089] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 6\/\/\/\/\/\/\/\/
+[00:00:00.089] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 5 -----------------------------------------------
+[00:00:00.089] (7f37aaa6c7c0) INFO   
+Contestant 0 (Dorcas), Contestant 1 (Gullermo)
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+Contestant 7 (Iveth), Contestant 6 (Christopherlee)
+Contestant 13 (Montrez), Contestant 12 (Aliea)
+Contestant 15 (Katrinia), Contestant 14 (Reshard)
+Contestant 8 (Simi), Contestant 3 (Len)
+Contestant 9 (Bartolo), Contestant 2 (Velencia)
+Contestant 4 (Debora), Contestant 5 (Jermaine)
+
+[00:00:00.090] (7f37aaa6c7c0) INFO   6 perfect matches are contained!
+[00:00:00.090] (7f37aaa6c7c0) INFO   Poss remaining: 36, Num correct: 3
+[00:00:00.090] (7f37aaa6c7c0) INFO   *******using round best guess*******
+[00:00:00.090] (7f37aaa6c7c0) INFO   Attempted match Contestant 4 (Debora), Contestant 5 (Jermaine)
+[00:00:00.090] (7f37aaa6c7c0) INFO   Guessed correctly!
+
+[00:00:00.090] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 7\/\/\/\/\/\/\/\/
+[00:00:00.090] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 6 -----------------------------------------------
+[00:00:00.090] (7f37aaa6c7c0) INFO   
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+Contestant 0 (Dorcas), Contestant 1 (Gullermo)
+Contestant 7 (Iveth), Contestant 6 (Christopherlee)
+Contestant 4 (Debora), Contestant 5 (Jermaine)
+Contestant 13 (Montrez), Contestant 12 (Aliea)
+Contestant 8 (Simi), Contestant 15 (Katrinia)
+Contestant 14 (Reshard), Contestant 9 (Bartolo)
+Contestant 2 (Velencia), Contestant 3 (Len)
+
+[00:00:00.091] (7f37aaa6c7c0) INFO   6 perfect matches are contained!
+[00:00:00.091] (7f37aaa6c7c0) INFO   Poss remaining: 22, Num correct: 4
+[00:00:00.091] (7f37aaa6c7c0) INFO   *******using round best guess*******
+[00:00:00.091] (7f37aaa6c7c0) INFO   Attempted match Contestant 9 (Bartolo), Contestant 2 (Velencia)
+[00:00:00.091] (7f37aaa6c7c0) INFO   Wrong guess!
+
+[00:00:00.091] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 8\/\/\/\/\/\/\/\/
+[00:00:00.092] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 7 -----------------------------------------------
+[00:00:00.092] (7f37aaa6c7c0) INFO   
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+Contestant 0 (Dorcas), Contestant 1 (Gullermo)
+Contestant 7 (Iveth), Contestant 6 (Christopherlee)
+Contestant 4 (Debora), Contestant 5 (Jermaine)
+Contestant 13 (Montrez), Contestant 12 (Aliea)
+Contestant 8 (Simi), Contestant 3 (Len)
+Contestant 14 (Reshard), Contestant 9 (Bartolo)
+Contestant 2 (Velencia), Contestant 15 (Katrinia)
+
+[00:00:00.092] (7f37aaa6c7c0) INFO   5 perfect matches are contained!
+[00:00:00.092] (7f37aaa6c7c0) INFO   Poss remaining: 21, Num correct: 4
+[00:00:00.092] (7f37aaa6c7c0) INFO   *******using round best guess*******
+[00:00:00.093] (7f37aaa6c7c0) INFO   Attempted match Contestant 8 (Simi), Contestant 3 (Len)
+[00:00:00.093] (7f37aaa6c7c0) INFO   Wrong guess!
+
+[00:00:00.093] (7f37aaa6c7c0) INFO   \/\/\/\/\/\/\/\/ROUND 9\/\/\/\/\/\/\/\/
+[00:00:00.093] (7f37aaa6c7c0) INFO   Ceremony guess --- rounds used: 8 -----------------------------------------------
+[00:00:00.093] (7f37aaa6c7c0) INFO   
+Contestant 11 (Queenie), Contestant 10 (Ivane)
+Contestant 0 (Dorcas), Contestant 1 (Gullermo)
+Contestant 7 (Iveth), Contestant 6 (Christopherlee)
+Contestant 4 (Debora), Contestant 5 (Jermaine)
+Contestant 13 (Montrez), Contestant 12 (Aliea)
+Contestant 8 (Simi), Contestant 9 (Bartolo)
+Contestant 14 (Reshard), Contestant 15 (Katrinia)
+Contestant 2 (Velencia), Contestant 3 (Len)
+
+[00:00:00.093] (7f37aaa6c7c0) INFO   8 perfect matches are contained!
